@@ -44,18 +44,12 @@ saveRDS(matchdetails, "matchdetails")
 ## Stopper connection til SQL
 dbDisconnect(con)
 
-# Load necessary libraries
-library(dplyr)
-library(tidyr)
-library(purrr)
-
-# xG data (as per your current structure)
-# Step 1: Compute xG per match
+# Step 1: summér xG pr. kamp
 xg_per_match <- shots %>%
   filter(season == "23/24") %>%
-  select(SHOTXG, MATCH_WYID, TEAM_WYID, OPPONENTTEAM_WYID) %>%
+  select(SHOTPOSTSHOTXG, MATCH_WYID, TEAM_WYID, OPPONENTTEAM_WYID) %>%
   group_by(MATCH_WYID, TEAM_WYID, OPPONENTTEAM_WYID) %>%
-  summarise(summeret_xG = sum(SHOTXG, na.rm = TRUE), .groups = "drop") %>%
+  summarise(summeret_xG = sum(SHOTPOSTSHOTXG, na.rm = TRUE), .groups = "drop") %>%
   left_join(matchdetails %>% select(MATCH_WYID, TEAM_WYID, SIDE), by = c("MATCH_WYID", "TEAM_WYID"))
 
 # Sammensmeltning af hjemme- og udeholdsteam
@@ -204,9 +198,6 @@ colnames(bootstrap_total_xP)[1] <- "teamid"
 # Merge bootstrap_total_xp og total_xp på teamid
 Bootstrap_vs_xP_model <- merge(bootstrap_total_xP, total_xP, by = "teamid", all = TRUE)
 
-## Kan eventuelt fortsætte med at oprette kolonner der udregner den %-vise varians der er i resultaterne ved bootstrapping 
-
-## Bootstrappingen øger faktisk problemet med de faktiske resultater endnu mere, hvor vi ser den overskyder endnu mere i bunden, og
 
 
 
